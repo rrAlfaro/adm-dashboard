@@ -19,7 +19,7 @@ const links = [
 </script>
 
 <template>
-    <div class="flex-shrink fixed inset-0 flex overflow-hidden">
+    <div class="fixed inset-0 flex overflow-hidden">
         <header class="hidden lg:block w-[270px]">
             <div class="flex items-center min-h-[56px]">
                 <div class="flex items-end gap-2 px-4">

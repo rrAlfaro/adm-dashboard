@@ -8,7 +8,7 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
-  modules: ["@nuxt/ui", "nuxt-svgo", "@vee-validate/nuxt"],
+  modules: ["@nuxt/ui", "nuxt-svgo"],
 
   colorMode: {
     classSuffix: "",

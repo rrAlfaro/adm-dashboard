@@ -1,13 +1,9 @@
-<script setup lang="ts">
-const email = useField('email', (value: string) => {
-    if (!value) return 'Campo obrigatório'
+<script setup>
+import { object } from 'yup';
 
-    const regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    if (!regex.test(String(value).toLowerCase())) {
-        return 'Email inválido'
-    }
-
-    return true
+const validationSchema = object({
+    name: string().required(),
+    cpf: string().required(),
 })
 
 async function onSubmit() {
@@ -25,15 +21,10 @@ async function onSubmit() {
                 <p class="text-sm text-gray-500">Adicione um usuário ao banco de dados</p>
             </template>
 
-            <!-- <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit"> -->
-            <UFormGroup label="Email" name="email">
-                <UInput v-model="email" />
-            </UFormGroup>
+            <template #default>
 
-            <UFormGroup label="Senha" name="password">
-                <UInput v-model="state.password" type="password" />
-            </UFormGroup>
-            <!-- </UForm> -->
+            </template>
+
             <template #footer>
                 <div class="flex justify-end gap-2">
                     <UButton label="Cancelar" color="gray" @click="onSubmit" />

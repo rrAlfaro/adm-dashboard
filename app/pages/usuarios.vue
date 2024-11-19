@@ -72,7 +72,6 @@ const modal = useModal()
 function openModal() {
     modal.open(ModalNewUser)
 }
-
 // Query
 const filteredRows = computed(() => {
     if (!q.value && !selectedStatuses.value.length) {
@@ -107,7 +106,7 @@ const defaultStatuses = people.reduce((acc, user) => {
             <h2 class="text-xl font-bold">Listagem de usuários</h2>
 
             <div>
-                <UButton label="Adicionar Usuário" @click="openModal()"/>
+                <UButton label="Adicionar Usuário" @click="openModal()" />
             </div>
         </div>
 
