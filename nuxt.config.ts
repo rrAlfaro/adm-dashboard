@@ -8,12 +8,24 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
-  modules: ["@nuxt/ui", "nuxt-svgo"],
+  modules: ["@nuxt/ui", "nuxt-svgo", "@nuxtjs/supabase"],
 
   colorMode: {
     classSuffix: "",
     preference: "system",
     fallback: "light",
     storageKey: "nuxt-color-mode",
+  },
+
+  supabase: {
+    url: process.env.SUPABASE_URL,
+    key: process.env.SUPABASE_KEY,
+  },
+
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_KEY,
+    },
   },
 });

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import LogoIcon from '@/assets/svg/logo-icon.svg'
 import LogoName from '@/assets/svg/logo-name.svg'
 
@@ -14,7 +14,7 @@ const links = [
     }, {
         label: 'Command Palette',
         icon: 'i-heroicons-command-line',
-        to: '/comm'
+        to: null
     }]
 </script>
 

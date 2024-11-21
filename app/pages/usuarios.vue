@@ -1,6 +1,20 @@
 <script setup lang="ts">
 import { ModalNewUser } from '#components'
 
+const supabase = useSupabaseClient()
+const { data: wallets, status } = await useAsyncData('wallets', async () => {
+    const { data, error } = await supabase
+        .from('wallets')
+        .select()
+        .eq('user_id', supabase.auth.admin.listUsers().data[0].id)
+
+    if (error) return []
+
+    return data
+})
+
+console.log(wallets.value)
+
 // TODO:Arrumar tipagem
 // TODO:Organizar código
 // Mocked data
@@ -72,6 +86,7 @@ const modal = useModal()
 function openModal() {
     modal.open(ModalNewUser)
 }
+
 // Query
 const filteredRows = computed(() => {
     if (!q.value && !selectedStatuses.value.length) {
