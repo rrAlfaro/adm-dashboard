@@ -1,21 +1,45 @@
 <script setup>
+// Imports
 import LogoIcon from '@/assets/svg/logo-icon.svg'
 import LogoName from '@/assets/svg/logo-name.svg'
 
-const links = [
-    {
-        label: 'Dashboard',
-        icon: 'i-heroicons-home',
-        to: '/'
-    }, {
-        label: 'Usuários',
-        icon: 'i-heroicons-users',
-        to: '/usuarios'
-    }, {
-        label: 'Command Palette',
-        icon: 'i-heroicons-command-line',
-        to: null
+// Composables
+const user = useSupabaseUser()
+const supabase = useSupabaseClient()
+const { toast } = useToast()
+console.log(user.value)
+
+const links = [{
+    label: 'Dashboard',
+    icon: 'i-heroicons-home',
+    to: '/'
+}, {
+    label: 'Usuários',
+    icon: 'i-heroicons-users',
+    to: '/usuarios'
+}]
+const dropDownItems = [
+    [{
+        label: user.value?.user_metadata?.name,
+        labelClass: 'text-xs cursor-pointer',
+        slot: 'account',
+        disabled: true
+    }], [{
+        label: 'Sair',
+        labelClass: 'text-red-500',
+        icon: 'i-heroicons-trash-20-solid',
+        iconClass: 'text-red-500 dark:text-red-500',
+        click: () => signOut()
     }]
+]
+
+// Methods
+const signOut = async () => {
+    const { error } = await supabase.auth.signOut()
+
+    if (error) toast.add({ title: 'Desculpe, ocorreu um erro', description: 'Tivemos algum problema do nosso lado.', color: 'red', icon: 'i-heroicons-x-circle-20-solid' })
+    else navigateTo({ path: '/login' })
+}
 </script>
 
 <template>
@@ -47,6 +71,22 @@ const links = [
                     </UButton>
 
                     <ButtonColorMode />
+
+                    <UDropdown :items="dropDownItems"
+                        :ui="{ width: 'w-fit', item: { disabled: 'cursor-text select-text' } }">
+                        <UButton color="gray" variant="ghost" class=" h-10 w-10">
+                            <UIcon name="i-heroicons-user-circle" size="24" />
+                        </UButton>
+
+                        <template #account="{ item }">
+                            <div class="text-left">
+                                <p>Logado como:</p>
+                                <p class="font-medium">
+                                    {{ item.label }}
+                                </p>
+                            </div>
+                        </template>
+                    </UDropdown>
                 </div>
             </div>
 

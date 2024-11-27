@@ -25,14 +25,15 @@ const schema = Yup.object({
 async function onSubmit(event) {
     loading.value = true
 
-    const { email, password, name } = event.data
+    const { email, password, name, job_title } = event.data
 
     const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
             data: {
-                name: name
+                name: name,
+                job_title: job_title
             }
         }
     })
@@ -55,26 +56,27 @@ async function onSubmit(event) {
         <template #header>
             <p class="font-semibold text-xl">Criar conta</p>
 
-            <!-- <p class="text-sm text-gray-500">Não se preocupe! Todos os dados são resetados diariamente à
-                meia-noite.</p> -->
+            <p class="text-sm text-gray-500">Não é necessário utilizar seus dados reais, todos os dados são resetados
+                diariamente à
+                meia-noite.</p>
         </template>
 
         <template #default>
             <UForm ref="form" id="create-account-form" :schema="schema" :state="form" class="space-y-4"
-                :validate-on="['submit']" @submit="onSubmit">
-                <UFormGroup label="Email" name="email">
+                @submit="onSubmit">
+                <UFormGroup label="Email" name="email" required>
                     <UInput v-model="form.email" />
                 </UFormGroup>
 
-                <UFormGroup label="Nome" name="name">
+                <UFormGroup label="Nome" name="name" required>
                     <UInput v-model="form.name" />
                 </UFormGroup>
 
-                <UFormGroup label="Senha" name="password">
+                <UFormGroup label="Senha" name="password" required>
                     <UInput v-model="form.password" type="password" />
                 </UFormGroup>
 
-                <UFormGroup label="Confirmar Senha" name="password_confirmation">
+                <UFormGroup label="Confirmar Senha" name="password_confirmation" required>
                     <UInput v-model="form.password_confirmation" type="password" />
                 </UFormGroup>
             </UForm>

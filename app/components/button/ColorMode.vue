@@ -22,7 +22,7 @@ const toogleColorMode = () => {
 
 <template>
     <ClientOnly>
-        <UButton @click="toogleColorMode" :color="color" :variant="variant" class=" h-10 w-10">
+        <UButton @click="toogleColorMode"  :variant="variant" class=" h-10 w-10">
             <UIcon v-if="colorMode.preference === 'light'" name="i-heroicons-sun" size="24" />
             <UIcon v-else name="i-heroicons-moon" size="24" />
         </UButton>

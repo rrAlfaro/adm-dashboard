@@ -1,99 +1,62 @@
-<script setup lang="ts">
-import { ModalNewUser } from '#components'
-
+<script setup>
+// Composables
 const supabase = useSupabaseClient()
-const { data: wallets, status } = await useAsyncData('wallets', async () => {
-    const { data, error } = await supabase
-        .from('wallets')
-        .select()
-        .eq('user_id', supabase.auth.admin.listUsers().data[0].id)
+const toast = useToast()
 
-    if (error) return []
+// Fetched data
+const { data: users, status } = await useAsyncData('profiles', async () => {
+    const { data, error } = await supabase.from('profiles').select()
+
+    if (error) {
+        toast.add({ title: 'Desculpe, ocorreu um erro', description: `Tivemos um problema do nosso lado. [${error.code}]`, color: 'red', icon: 'i-heroicons-x-circle-20-solid' })
+
+        return []
+    }
 
     return data
 })
+// Fetched data
+const { data: user } = await useAsyncData('user', async () => {
+    const { data, error } = await supabase.auth.getUser()
 
-console.log(wallets.value)
+    if (error) {
+        toast.add({ title: 'Desculpe, ocorreu um erro', description: `Tivemos um problema do nosso lado. [${error.code}]`, color: 'red', icon: 'i-heroicons-x-circle-20-solid' })
+        return []
+    }
+
+    const { user_metadata } = data.user
+    return user_metadata
+})
 
 // TODO:Arrumar tipagem
 // TODO:Organizar código
 // Mocked data
 const columns = [{
-    key: 'id',
-    label: 'ID'
-}, {
     key: 'name',
     label: 'Nome do usuário',
     sortable: true
 }, {
-    key: 'title',
+    key: 'job_title',
     label: 'Cargo',
     sortable: true
 }, {
     key: 'email',
     label: 'Email',
     sortable: true
-}, {
-    key: 'status',
-    label: 'Status'
-}]
-const people = [{
-    id: 1,
-    name: 'Rafael Reichert Alfaro',
-    title: 'Desenvolvedor Front-end',
-    email: 'rafael@alfaro.com.br',
-    status: 'Ativo'
-}, {
-    id: 2,
-    name: 'Courtney Henry',
-    title: 'Designer',
-    email: 'courtney.henry@example.com',
-    status: 'Pendente'
-}, {
-    id: 3,
-    name: 'Tom Cook',
-    title: 'Director of Product',
-    email: 'tom.cook@example.com',
-    status: 'Ativo'
-}, {
-    id: 4,
-    name: 'Whitney Francis',
-    title: 'Copywriter',
-    email: 'whitney.francis@example.com',
-    status: 'Pendente'
-}, {
-    id: 5,
-    name: 'Leonard Krasner',
-    title: 'Senior Designer',
-    email: 'leonard.krasner@example.com',
-    status: 'Inativo'
-}, {
-    id: 6,
-    name: 'Floyd Miles',
-    title: 'Principal Designer',
-    email: 'floyd.miles@example.com',
-    status: 'Ativo'
 }]
 
 // Data
 const selectedColumns = ref([...columns])
-const selectedStatuses = ref<string[]>([])
-const q = ref<string>('')
-
-// Composables
-const modal = useModal()
-
-function openModal() {
-    modal.open(ModalNewUser)
-}
+const selectedStatuses = ref([])
+const q = ref('')
 
 // Query
 const filteredRows = computed(() => {
     if (!q.value && !selectedStatuses.value.length) {
-        return people
+        return users.value
     }
 
-    return people.filter((person) => {
+    return users.value?.filter((person) => {
         const matchesQuery = !q.value || Object.values(person).some((value) => {
             return String(value).toLowerCase().includes(q.value.toLowerCase())
         })
@@ -105,28 +68,26 @@ const filteredRows = computed(() => {
 })
 
 // Methods
-const defaultStatuses = people.reduce((acc, user) => {
+const defaultStatuses = users.value?.reduce((acc, user) => {
     if (!acc.includes(user.status)) {
         acc.push(user.status)
     }
 
     return acc
-}, [] as string[])
+}, [])
 </script>
 
-// TODO:Componentizar
 <template>
     <div>
+        <!-- TODO:Componentizar -->
+        <!-- Header -->
         <div class="flex items-center justify-between gap-2 min-h-[56px] px-4">
             <h2 class="text-xl font-bold">Listagem de usuários</h2>
-
-            <div>
-                <UButton label="Adicionar Usuário" @click="openModal()" />
-            </div>
         </div>
 
         <UDivider />
 
+        <!-- Filters -->
         <div class="flex items-center gap-2 min-h-[56px] px-4">
             <UInput v-model="q" placeholder="Filtrar usuário..." class="" />
 
@@ -146,6 +107,7 @@ const defaultStatuses = people.reduce((acc, user) => {
 
         <UDivider />
 
+        <!-- Table -->
         <UTable :rows="filteredRows" :columns="selectedColumns"
             :empty-state="{ icon: 'i-heroicons-face-frown', label: 'Não encontramos nenhum dado.' }" />
     </div>

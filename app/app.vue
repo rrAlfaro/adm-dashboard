@@ -26,6 +26,7 @@ useSeoMeta({
   twitterCard: 'summary_large_image'
 })
 </script>
+
 <template>
   <div>
     <NuxtLoadingIndicator color="text-default" />
@@ -39,3 +40,16 @@ useSeoMeta({
     <UNotifications />
   </div>
 </template>
+
+<style>
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.2s;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  filter: blur(.3rem);
+}
+</style>
