@@ -7,8 +7,8 @@ import LogoName from '@/assets/svg/logo-name.svg'
 const user = useSupabaseUser()
 const supabase = useSupabaseClient()
 const { toast } = useToast()
-console.log(user.value)
 
+// Data
 const links = [{
     label: 'Dashboard',
     icon: 'i-heroicons-home',
@@ -17,6 +17,10 @@ const links = [{
     label: 'Usuários',
     icon: 'i-heroicons-users',
     to: '/usuarios'
+}, {
+    label: 'Categorias',
+    icon: 'i-heroicons-tag',
+    to: '/categorias'
 }]
 const dropDownItems = [
     [{
@@ -40,6 +44,12 @@ const signOut = async () => {
     if (error) toast.add({ title: 'Desculpe, ocorreu um erro', description: 'Tivemos algum problema do nosso lado.', color: 'red', icon: 'i-heroicons-x-circle-20-solid' })
     else navigateTo({ path: '/login' })
 }
+const getCurrentRouteName = computed(() => {
+    const routeName = useRoute().name
+
+    if (routeName === 'index') return 'Dashboard'
+    else return routeName.charAt(0).toUpperCase() + routeName.slice(1)
+})
 </script>
 
 <template>
@@ -63,7 +73,7 @@ const signOut = async () => {
             <!-- TODO:Componentizar NavHeader -->
             <!-- TODO:Composable de troca de header -->
             <div class="flex items-center justify-between min-h-[56px] px-4">
-                <h1 class="font-semibold text-default-500">Usuários</h1>
+                <h1 class="font-semibold text-default-500">{{ getCurrentRouteName }}</h1>
 
                 <div>
                     <UButton color="gray" variant="ghost" class=" h-10 w-10">

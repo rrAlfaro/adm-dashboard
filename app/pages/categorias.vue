@@ -1,11 +1,16 @@
 <script setup>
+import { CategorieCreate } from '#components';
+
+// Imports
+
 // Composables
 const supabase = useSupabaseClient()
 const toast = useToast()
+const modal = useModal()
 
 // Fetched data
-const { data: users, status } = await useAsyncData('profiles', async () => {
-    const { data, error } = await supabase.from('profiles').select()
+const { data: categories, status } = await useAsyncData('categories', async () => {
+    const { data, error } = await supabase.from('categories').select()
 
     if (error) {
         toast.add({ title: 'Desculpe, ocorreu um erro', description: `Tivemos um problema do nosso lado. [${error.code}]`, color: 'red', icon: 'i-heroicons-x-circle-20-solid' })
@@ -15,19 +20,24 @@ const { data: users, status } = await useAsyncData('profiles', async () => {
 
     return data
 })
+const openCreateModal = () => {
+    modal.open(CategorieCreate)
+}
 
 // Data
 const columns = [{
+    key: 'hex_color',
+}, {
     key: 'name',
-    label: 'Nome do usuário',
+    label: 'Nome da categoria',
     sortable: true
 }, {
-    key: 'job_title',
-    label: 'Cargo',
+    key: 'description',
+    label: 'Descrição',
     sortable: true
 }, {
-    key: 'email',
-    label: 'Email',
+    key: 'created_at',
+    label: 'Criado em',
     sortable: true
 }]
 
@@ -39,10 +49,10 @@ const q = ref('')
 // Query
 const filteredRows = computed(() => {
     if (!q.value && !selectedStatuses.value.length) {
-        return users.value
+        return categories.value
     }
 
-    return users.value?.filter((person) => {
+    return categories.value?.filter((person) => {
         const matchesQuery = !q.value || Object.values(person).some((value) => {
             return String(value).toLowerCase().includes(q.value.toLowerCase())
         })
@@ -54,7 +64,7 @@ const filteredRows = computed(() => {
 })
 
 // Methods
-const defaultStatuses = users.value?.reduce((acc, user) => {
+const defaultStatuses = categories.value?.reduce((acc, user) => {
     if (!acc.includes(user.status)) {
         acc.push(user.status)
     }
@@ -68,14 +78,16 @@ const defaultStatuses = users.value?.reduce((acc, user) => {
         <!-- TODO:Componentizar -->
         <!-- Header -->
         <div class="flex items-center justify-between gap-2 min-h-[56px] px-4">
-            <h2 class="text-xl font-bold">Listagem de usuários</h2>
+            <h2 class="text-xl font-bold">Listagem de categorias</h2>
+
+            <UButton label="Criar nova categoria" @click="openCreateModal" />
         </div>
 
         <UDivider />
 
         <!-- Filters -->
         <div class="flex items-center gap-2 min-h-[56px] px-4">
-            <UInput v-model="q" placeholder="Filtrar usuário..." class="" />
+            <UInput v-model="q" placeholder="Filtrar catagoria..." class="" />
 
             <USelectMenu v-model="selectedStatuses" :options="defaultStatuses" multiple name="status"
                 placeholder="Status" class="min-w-[120px]">
