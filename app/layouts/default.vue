@@ -4,8 +4,8 @@ import LogoIcon from '@/assets/svg/logo-icon.svg'
 import LogoName from '@/assets/svg/logo-name.svg'
 
 // Composables
-const user = useSupabaseUser()
-const supabase = useSupabaseClient()
+// const user = useSupabaseUser()
+// const supabase = useSupabaseClient()
 const { toast } = useToast()
 
 // Data
@@ -18,13 +18,14 @@ const links = [{
     icon: 'i-heroicons-users',
     to: '/usuarios'
 }, {
-    label: 'Categorias',
-    icon: 'i-heroicons-tag',
-    to: '/categorias'
+    label: 'Produtos',
+    icon: 'i-heroicons-shopping-cart',
+    to: '/produtos'
 }]
 const dropDownItems = [
     [{
-        label: user.value?.user_metadata?.name,
+        // label: user.value?.user_metadata?.name,
+        label: 'rafael',
         labelClass: 'text-xs cursor-pointer',
         slot: 'account',
         disabled: true
@@ -39,10 +40,10 @@ const dropDownItems = [
 
 // Methods
 const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
+    // const { error } = await supabase.auth.signOut()
 
-    if (error) toast.add({ title: 'Desculpe, ocorreu um erro', description: 'Tivemos algum problema do nosso lado.', color: 'red', icon: 'i-heroicons-x-circle-20-solid' })
-    else navigateTo({ path: '/login' })
+    // if (error) toast.add({ title: 'Desculpe, ocorreu um erro', description: 'Tivemos algum problema do nosso lado.', color: 'red', icon: 'i-heroicons-x-circle-20-solid' })
+    // else navigateTo({ path: '/login' })
 }
 const getCurrentRouteName = computed(() => {
     const routeName = useRoute().name
@@ -83,7 +84,7 @@ const getCurrentRouteName = computed(() => {
                     <ButtonColorMode />
 
                     <UDropdown :items="dropDownItems"
-                        :ui="{ width: 'w-fit', item: { disabled: 'cursor-text select-text' } }">
+                        :ui="{ width: 'w-fit min-w-[200px]', item: { disabled: 'cursor-text select-text' } }">
                         <UButton color="gray" variant="ghost" class=" h-10 w-10">
                             <UIcon name="i-heroicons-user-circle" size="24" />
                         </UButton>

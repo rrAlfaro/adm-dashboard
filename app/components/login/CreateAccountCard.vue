@@ -1,23 +1,31 @@
 <script setup>
-// Emits
-defineEmits(['changeTo'])
 
 // Imports
 import * as Yup from 'yup'
+import { useUser } from '~/composables/api/useUser';
+
+// Emits
+const emit = defineEmits(['changeTo'])
 
 // Composables
 const toast = useToast()
-const supabase = useSupabaseClient()
+const { createUser } = useUser()
 
 // Refs
+const state = reactive({
+    email: '',
+    password: '',
+    confirm_password: '',
+    name: '',
+})
 const form = ref({})
 const loading = ref(false)
 
 // Schema
 const schema = Yup.object({
     email: Yup.string().email('Email inválido').required('Obrigatório'),
-    password: Yup.string().required('Obrigatório').min(6, 'A senha deve ter pelo menos 6 caracteres'),
-    password_confirmation: Yup.string().required('Obrigatório').oneOf([Yup.ref('password')], 'As senhas devem ser iguais'),
+    password: Yup.string().required('Obrigatório').min(8, 'A senha deve ter pelo menos 8 caracteres'),
+    confirm_password: Yup.string().required('Obrigatório').oneOf([Yup.ref('password')], 'As senhas devem ser iguais'),
     name: Yup.string().required('Obrigatório'),
 })
 
@@ -25,25 +33,14 @@ const schema = Yup.object({
 async function onSubmit(event) {
     loading.value = true
 
-    const { email, password, name, job_title } = event.data
-
-    const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-            data: {
-                name: name,
-                job_title: job_title
-            }
-        }
-    })
+    const { error } = await createUser(event.data)
 
     if (error) {
-        if (error.code === 'user_already_exists') form.value.setErrors([{ path: 'email', message: 'Já existe uma conta com esse email' }])
+        if (error?.data?.errors?.email) form.value.setErrors([{ path: 'email', message: 'Já existe uma conta com esse email' }])
         else toast.add({ title: 'Desculpe, ocorreu um erro', description: 'Tivemos algum problema do nosso lado, tente novamente mais tarde', color: 'red', icon: 'i-heroicons-x-circle-20-solid' })
     } else {
-        toast.add({ title: 'Bem vindo!', color: 'green', icon: 'i-heroicons-check-circle-20-solid', timeout: 3000 })
-        navigateTo({ path: '/' })
+        toast.add({ title: 'Conta criada com sucesso!', description: 'Realize seu login.', color: 'green', icon: 'i-heroicons-check-circle-20-solid', timeout: 3000 })
+        emit('changeTo', 'login')
     }
 
     loading.value = false
@@ -62,22 +59,22 @@ async function onSubmit(event) {
         </template>
 
         <template #default>
-            <UForm ref="form" id="create-account-form" :schema="schema" :state="form" class="space-y-4"
+            <UForm ref="form" id="create-account-form" :schema="schema" :state="state" class="space-y-4"
                 @submit="onSubmit">
                 <UFormGroup label="Email" name="email" required>
-                    <UInput v-model="form.email" />
+                    <UInput v-model="state.email" />
                 </UFormGroup>
 
                 <UFormGroup label="Nome" name="name" required>
-                    <UInput v-model="form.name" />
+                    <UInput v-model="state.name" />
                 </UFormGroup>
 
                 <UFormGroup label="Senha" name="password" required>
-                    <UInput v-model="form.password" type="password" />
+                    <UInput v-model="state.password" type="password" />
                 </UFormGroup>
 
-                <UFormGroup label="Confirmar Senha" name="password_confirmation" required>
-                    <UInput v-model="form.password_confirmation" type="password" />
+                <UFormGroup label="Confirmar Senha" name="confirm_password" required>
+                    <UInput v-model="state.confirm_password" type="password" />
                 </UFormGroup>
             </UForm>
         </template>

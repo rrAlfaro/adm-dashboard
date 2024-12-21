@@ -1,35 +1,40 @@
 <script setup>
 // Imports
 import * as Yup from 'yup'
+import { useAuth } from '~/composables/api/useAuth';
 
 // Emits
 defineEmits(['changeTo'])
 
 // Hooks
 onMounted(() => {
-    const email = localStorage.getItem('e-tech');
+    const login = localStorage.getItem('e-tech');
     const password = localStorage.getItem('p-tech');
 
-    if (email && password) {
+    if (login && password) {
         rememberMe.value = true;
 
-        form.value.email = email;
-        form.value.password = password;
+        state.login = login;
+        state.password = password;
     }
 })
 
 // Composables
 const toast = useToast()
-const supabase = useSupabaseClient()
+const { login } = useAuth()
 
 // Refs
-const form = ref({})
+const state = reactive({
+    login: '',
+    password: ''
+})
+const form = ref()
 const loading = ref(false)
 const rememberMe = ref(false);
 
 // Schema
 const schema = Yup.object({
-    email: Yup.string().email('Email inválido').required('Obrigatório'),
+    login: Yup.string().email('Email inválido').required('Obrigatório'),
     password: Yup.string().required('Obrigatório'),
 })
 
@@ -37,10 +42,10 @@ const schema = Yup.object({
 async function onSubmit(event) {
     loading.value = true
 
-    const { error } = await supabase.auth.signInWithPassword(event.data)
+    const { error } = await login(event.data)
 
     if (error) {
-        if (error.code === 'invalid_credentials') form.value.setErrors([{ path: 'email', message: 'Email ou senha incorretos' }])
+        if (error.status == 401) form.value.setErrors([{ path: 'email', message: 'Email ou senha incorretos' }])
         else toast.add({ title: 'Desculpe, ocorreu um erro', description: 'Tivemos algum problema do nosso lado, tente novamente mais tarde', color: 'red', icon: 'i-heroicons-x-circle-20-solid' })
     } else {
         setRememberMe()
@@ -53,8 +58,8 @@ async function onSubmit(event) {
 
 function setRememberMe() {
     if (rememberMe.value) {
-        localStorage.setItem('e-tech', form.value?.email);
-        localStorage.setItem('p-tech', form.value?.password);
+        localStorage.setItem('e-tech', state.login);
+        localStorage.setItem('p-tech', state.password);
     } else {
         localStorage.removeItem('e-tech');
         localStorage.removeItem('p-tech');
@@ -73,14 +78,14 @@ function setRememberMe() {
         </template>
 
         <template #default>
-            <UForm ref="form" id="login-form" :schema="schema" :state="form" class="space-y-4" :validate-on="['submit']"
-                @submit="onSubmit">
+            <UForm ref="form" id="login-form" :schema="schema" :state="state" class="space-y-4"
+                :validate-on="['submit']" @submit="onSubmit">
                 <UFormGroup label="Email" name="email">
-                    <UInput v-model="form.email" />
+                    <UInput v-model="state.login" />
                 </UFormGroup>
 
                 <UFormGroup label="Senha" name="password">
-                    <UInput v-model="form.password" type="password" />
+                    <UInput v-model="state.password" type="password" />
                 </UFormGroup>
             </UForm>
         </template>

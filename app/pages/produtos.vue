@@ -1,14 +1,16 @@
 <script setup>
-import { UserCreate } from '#components';
-import { useUser } from '~/composables/api/useUser';
+import { ProductCreate } from '#components';
+import { useProduct } from '~/composables/api/useProduct';
+
+// Imports
 
 // Composables
 const toast = useToast()
 const modal = useModal()
 
 // Fetched data
-const { data: users, status, refresh } = await useAsyncData('users', async () => {
-    const { data, error } = await useUser().getUsers()
+const { data: products, status, refresh } = await useLazyAsyncData('users', async () => {
+    const { data, error } = await useProduct().getProducts()
 
     if (error) {
         toast.add({ title: 'Desculpe, ocorreu um erro', description: `Tivemos um problema do nosso lado. [${error.status}]`, color: 'red', icon: 'i-heroicons-x-circle-20-solid' })
@@ -16,7 +18,11 @@ const { data: users, status, refresh } = await useAsyncData('users', async () =>
     }
 
     return data?.data
-}, { lazy: true })
+})
+console.log(products.value)
+const openCreateModal = () => {
+    modal.open(ProductCreate)
+}
 
 // Data
 const columns = [{
@@ -24,11 +30,19 @@ const columns = [{
     label: 'ID',
 }, {
     key: 'name',
-    label: 'Nome do usuário',
+    label: 'Nome da categoria',
     sortable: true
 }, {
-    key: 'email',
-    label: 'Email',
+    key: 'description',
+    label: 'Descrição',
+    sortable: true
+}, {
+    key: 'product_type_id',
+    label: 'Tipo',
+    sortable: true
+}, {
+    key: 'price',
+    label: 'Preço',
     sortable: true
 }]
 
@@ -39,10 +53,10 @@ const q = ref('')
 // Query
 const filteredRows = computed(() => {
     if (!q.value) {
-        return users.value
+        return products.value
     }
 
-    return users.value?.filter((person) => {
+    return products.value?.filter((person) => {
         const matchesQuery = !q.value || Object.values(person).some((value) => {
             return String(value).toLowerCase().includes(q.value.toLowerCase())
         })
@@ -50,17 +64,6 @@ const filteredRows = computed(() => {
         return matchesQuery
     })
 })
-
-// Methods
-const openCreateModal = () => {
-    modal.open(UserCreate, {
-        onClose: () => modal.close(),
-        onCreated: () => {
-            refresh()
-            modal.close()
-        }
-    })
-}
 </script>
 
 <template>
@@ -68,16 +71,16 @@ const openCreateModal = () => {
         <!-- TODO:Componentizar -->
         <!-- Header -->
         <div class="flex items-center justify-between gap-2 min-h-[56px] px-4">
-            <h2 class="text-xl font-bold">Listagem de usuários</h2>
+            <h2 class="text-xl font-bold">Listagem de produtos</h2>
 
-            <UButton label="Criar novo usuário" @click="openCreateModal" />
+            <UButton label="Criar nova categoria" @click="openCreateModal" />
         </div>
 
         <UDivider />
 
         <!-- Filters -->
         <div class="flex items-center gap-2 min-h-[56px] px-4">
-            <UInput v-model="q" placeholder="Filtrar usuário..." class="" />
+            <UInput v-model="q" placeholder="Filtrar produto..." class="" />
 
             <USelectMenu v-model="selectedColumns" :options="columns" multiple placeholder="Display" class="ml-auto">
                 <template #label>
@@ -90,7 +93,6 @@ const openCreateModal = () => {
 
         <!-- Table -->
         <UTable :rows="filteredRows" :columns="selectedColumns" :loading="status !== 'success'"
-            :loading-state="{ label: 'Carregando...' }"
             :empty-state="{ icon: 'i-heroicons-face-frown', label: 'Não encontramos nenhum dado.' }" />
     </div>
 </template>

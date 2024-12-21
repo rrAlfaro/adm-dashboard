@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     pageTransition: { name: "page", mode: "out-in" },
   },
 
-  modules: ["@nuxt/ui", "nuxt-svgo", "@nuxtjs/supabase"],
+  modules: ["@nuxt/ui", "nuxt-svgo"],
 
   colorMode: {
     classSuffix: "",
@@ -21,15 +21,9 @@ export default defineNuxtConfig({
     storageKey: "nuxt-color-mode",
   },
 
-  supabase: {
-    url: process.env.SUPABASE_URL,
-    key: process.env.SUPABASE_KEY,
-  },
-
   runtimeConfig: {
     public: {
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseKey: process.env.SUPABASE_KEY,
+      baseURL: process.env.BASE_URL,
     },
   },
 });
